@@ -5,6 +5,9 @@ cartas.forEach(carta => carta.addEventListener('click', virarCarta));
 let algumaCartaGirada = false;
 let primeiraCarta, segundaCarta;
 let cartasFinalizas = 0;
+let numJogadas = 0;
+let tempoInicial = new Date().getTime();
+let jogoFinalizado = false;
 
 (function embaralhar()
 {
@@ -27,6 +30,7 @@ function virarCarta(){
     verificarCartas();
 }
 function verificarCartas(){
+    numJogadas++;
     if(primeiraCarta.dataset.img === segundaCarta.dataset.img) desativarCartas();
     else desvirarCarta();
 }
@@ -60,8 +64,12 @@ function checkEndGame()
 {
     if(cartasFinalizas == 12) 
     {
+        jogoFinalizado = true;
         if(window.confirm("Parábens !!!\nVocê finalizou o jogo\nDeseja começar novamente ?")) 
         {
+            numJogadas = 0;
+            tempoInicial = new Date().getTime();
+            jogoFinalizado = false;
             cartas.forEach(carta => {
                 let position = Math.floor(Math.random()*12);
                 carta.style.order = position;
@@ -72,3 +80,19 @@ function checkEndGame()
         }
     }
 }
+function updateTemporizador()
+{
+    if(jogoFinalizado) return;
+    let tempoAtual = new Date().getTime();
+    let tempoGasto = (tempoAtual - tempoInicial) / 1000;  // Tempo em segundos
+    const showTempo = document.querySelector('.txt-time');
+    const showJogadas = document.querySelector('.txt-jogadas');
+    showTempo.innerHTML = '[Tempo gasto]: ' + formatarTempo(tempoGasto);
+    showJogadas.innerHTML = '[Jogadas feitas]: ' + numJogadas;
+}
+function formatarTempo(segundos) {
+    let minutos = Math.floor(segundos / 60);
+    segundos = Math.floor(segundos % 60);
+    return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+}
+setInterval(updateTemporizador, 1000);
